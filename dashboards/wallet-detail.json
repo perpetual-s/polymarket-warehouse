@@ -1,0 +1,135 @@
+{
+  "annotations": {"list": [{"builtIn": 1, "datasource": {"type": "grafana", "uid": "-- Grafana --"}, "enable": true, "hide": true, "iconColor": "rgba(0, 211, 255, 1)", "name": "Annotations & Alerts", "type": "dashboard"}]},
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [
+    {"title": "Wallet Leaderboard", "url": "/d/sparta-wallet-leaderboard/wallet-leaderboard", "icon": "external link", "type": "link"},
+    {"title": "Market Flow", "url": "/d/sparta-market-flow/market-flow", "icon": "external link", "type": "link"},
+    {"title": "Collector Health", "url": "/d/sparta-collector-health/collector-health", "icon": "external link", "type": "link"}
+  ],
+  "templating": {
+    "list": [
+      {
+        "name": "wallet",
+        "type": "query",
+        "datasource": {"type": "postgres", "uid": "timescaledb"},
+        "query": "SELECT w.address AS __value, COALESCE(NULLIF(w.name, ''), NULLIF(w.user_name, ''), LEFT(w.address, 16) || '...') AS __text FROM bonus.wallets w WHERE w.is_tracked ORDER BY (SELECT COUNT(*) FROM bonus.wallet_trade_events t WHERE t.proxy_wallet = w.address) DESC LIMIT 50;",
+        "refresh": 1,
+        "multi": false,
+        "includeAll": false,
+        "current": {"text": "elkmonkey", "value": "0xead152b855effa6b5b5837f53b24c0756830c76a"},
+        "sort": 0
+      }
+    ]
+  },
+  "panels": [
+    {
+      "datasource": {"type": "postgres", "uid": "timescaledb"},
+      "fieldConfig": {"defaults": {"color": {"mode": "thresholds"}, "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}]}}, "overrides": []},
+      "gridPos": {"h": 4, "w": 6, "x": 0, "y": 0},
+      "id": 1,
+      "options": {"colorMode": "value", "graphMode": "none", "justifyMode": "center", "orientation": "auto", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "textMode": "auto"},
+      "targets": [{"format": "table", "rawQuery": true, "rawSql": "SELECT COALESCE(rank, 0)::double precision AS value FROM bonus.raw_pma_trader_snapshots WHERE trader_address = '$wallet' AND captured_at = (SELECT MAX(captured_at) FROM bonus.raw_pma_trader_snapshots) LIMIT 1;", "refId": "A"}],
+      "title": "PMA Rank",
+      "type": "stat"
+    },
+    {
+      "datasource": {"type": "postgres", "uid": "timescaledb"},
+      "fieldConfig": {"defaults": {"color": {"mode": "thresholds"}, "unit": "currencyUSD", "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}]}}, "overrides": []},
+      "gridPos": {"h": 4, "w": 6, "x": 6, "y": 0},
+      "id": 2,
+      "options": {"colorMode": "value", "graphMode": "none", "justifyMode": "center", "orientation": "auto", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "textMode": "auto"},
+      "targets": [{"format": "table", "rawQuery": true, "rawSql": "SELECT COALESCE(latest_leaderboard_pnl, 0)::double precision AS value FROM bonus.wallets WHERE address = '$wallet';", "refId": "A"}],
+      "title": "Leaderboard PnL",
+      "type": "stat"
+    },
+    {
+      "datasource": {"type": "postgres", "uid": "timescaledb"},
+      "fieldConfig": {"defaults": {"color": {"mode": "thresholds"}, "unit": "currencyUSD", "thresholds": {"mode": "absolute", "steps": [{"color": "blue", "value": null}]}}, "overrides": []},
+      "gridPos": {"h": 4, "w": 6, "x": 12, "y": 0},
+      "id": 3,
+      "options": {"colorMode": "value", "graphMode": "none", "justifyMode": "center", "orientation": "auto", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "textMode": "auto"},
+      "targets": [{"format": "table", "rawQuery": true, "rawSql": "SELECT COALESCE(SUM(notional_usd), 0)::double precision AS value FROM bonus.wallet_trade_events WHERE proxy_wallet = '$wallet';", "refId": "A"}],
+      "title": "Tracked Volume",
+      "type": "stat"
+    },
+    {
+      "datasource": {"type": "postgres", "uid": "timescaledb"},
+      "fieldConfig": {"defaults": {"color": {"mode": "thresholds"}, "thresholds": {"mode": "absolute", "steps": [{"color": "purple", "value": null}]}}, "overrides": []},
+      "gridPos": {"h": 4, "w": 6, "x": 18, "y": 0},
+      "id": 4,
+      "options": {"colorMode": "value", "graphMode": "none", "justifyMode": "center", "orientation": "auto", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "textMode": "auto"},
+      "targets": [{"format": "table", "rawQuery": true, "rawSql": "SELECT COUNT(DISTINCT condition_id)::double precision AS value FROM bonus.wallet_trade_events WHERE proxy_wallet = '$wallet';", "refId": "A"}],
+      "title": "Tracked Markets",
+      "type": "stat"
+    },
+    {
+      "datasource": {"type": "postgres", "uid": "timescaledb"},
+      "fieldConfig": {"defaults": {"color": {"mode": "palette-classic"}, "custom": {"drawStyle": "bars", "fillOpacity": 60, "stacking": {"mode": "normal"}}, "unit": "currencyUSD"}, "overrides": []},
+      "gridPos": {"h": 9, "w": 12, "x": 0, "y": 4},
+      "id": 5,
+      "options": {"legend": {"displayMode": "list", "placement": "bottom"}, "tooltip": {"mode": "multi"}},
+      "targets": [{"format": "time_series", "rawQuery": true, "rawSql": "SELECT day AS \"time\", side AS metric, SUM(notional_usd)::double precision AS value\nFROM (\n  SELECT DATE_TRUNC('day', event_ts) AS day, side, notional_usd\n  FROM bonus.wallet_trade_events\n  WHERE proxy_wallet = '$wallet'\n) sub\nGROUP BY 1, 2\nORDER BY 1;", "refId": "A"}],
+      "title": "Tracked Daily Volume (Buy vs Sell)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "postgres", "uid": "timescaledb"},
+      "fieldConfig": {"defaults": {"color": {"mode": "palette-classic"}, "custom": {"drawStyle": "line", "lineWidth": 2, "pointSize": 5, "showPoints": "auto"}, "unit": "short"}, "overrides": []},
+      "gridPos": {"h": 9, "w": 12, "x": 12, "y": 4},
+      "id": 6,
+      "options": {"legend": {"displayMode": "list", "placement": "bottom"}, "tooltip": {"mode": "multi"}},
+      "targets": [{"format": "time_series", "rawQuery": true, "rawSql": "SELECT day AS \"time\", 'trades' AS metric, trade_count::double precision AS value\nFROM bonus.wallet_performance_daily\nWHERE proxy_wallet = '$wallet'\nORDER BY 1;", "refId": "A"}],
+      "title": "Daily Trade Count",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "postgres", "uid": "timescaledb"},
+      "fieldConfig": {"defaults": {"color": {"mode": "palette-classic"}, "custom": {"drawStyle": "bars", "fillOpacity": 80}, "unit": "currencyUSD"}, "overrides": []},
+      "gridPos": {"h": 9, "w": 12, "x": 0, "y": 13},
+      "id": 7,
+      "options": {"legend": {"displayMode": "list", "placement": "bottom"}, "tooltip": {"mode": "single"}},
+      "targets": [{"format": "table", "rawQuery": true, "rawSql": "SELECT\n  COALESCE(title, LEFT(condition_id, 20) || '...') AS market,\n  SUM(notional_usd)::double precision AS volume\nFROM bonus.wallet_trade_events\nWHERE proxy_wallet = '$wallet'\nGROUP BY title, condition_id\nORDER BY volume DESC\nLIMIT 15;", "refId": "A"}],
+      "title": "Top Tracked Markets by Volume",
+      "type": "barchart"
+    },
+    {
+      "datasource": {"type": "postgres", "uid": "timescaledb"},
+      "fieldConfig": {"defaults": {"custom": {"align": "auto", "displayMode": "auto"}}, "overrides": [
+        {"matcher": {"id": "byName", "options": "current_value"}, "properties": [{"id": "unit", "value": "currencyUSD"}, {"id": "decimals", "value": 0}]},
+        {"matcher": {"id": "byName", "options": "cash_pnl"}, "properties": [{"id": "unit", "value": "currencyUSD"}, {"id": "decimals", "value": 0}]},
+        {"matcher": {"id": "byName", "options": "pnl_pct"}, "properties": [{"id": "unit", "value": "percent"}]}
+      ]},
+      "gridPos": {"h": 9, "w": 12, "x": 12, "y": 13},
+      "id": 8,
+      "options": {"footer": {"show": false}, "showHeader": true},
+      "targets": [{"format": "table", "rawQuery": true, "rawSql": "SELECT\n  title AS market,\n  outcome,\n  size::NUMERIC(18, 2) AS shares,\n  avg_price::NUMERIC(6, 4) AS entry,\n  cur_price::NUMERIC(6, 4) AS current,\n  current_value::double precision AS current_value,\n  cash_pnl::double precision AS cash_pnl,\n  percent_pnl::double precision AS pnl_pct\nFROM bonus.raw_wallet_positions_snapshots\nWHERE proxy_wallet = '$wallet'\n  AND captured_at = (SELECT MAX(captured_at) FROM bonus.raw_wallet_positions_snapshots WHERE proxy_wallet = '$wallet')\n  AND size > 0\nORDER BY COALESCE(current_value, 0) DESC\nLIMIT 20;", "refId": "A"}],
+      "title": "Current Positions",
+      "type": "table"
+    },
+    {
+      "datasource": {"type": "postgres", "uid": "timescaledb"},
+      "fieldConfig": {"defaults": {"custom": {"align": "auto", "displayMode": "auto"}}, "overrides": [
+        {"matcher": {"id": "byName", "options": "notional"}, "properties": [{"id": "unit", "value": "currencyUSD"}, {"id": "decimals", "value": 0}]}
+      ]},
+      "gridPos": {"h": 10, "w": 24, "x": 0, "y": 22},
+      "id": 9,
+      "options": {"footer": {"show": false}, "showHeader": true},
+      "targets": [{"format": "table", "rawQuery": true, "rawSql": "SELECT\n  event_ts::timestamp(0) AS time,\n  side,\n  title AS market,\n  outcome,\n  price::NUMERIC(6, 4) AS price,\n  size::NUMERIC(14, 2) AS shares,\n  notional_usd::double precision AS notional,\n  LEFT(transaction_hash, 16) || '...' AS tx\nFROM bonus.wallet_trade_events\nWHERE proxy_wallet = '$wallet'\nORDER BY event_ts DESC\nLIMIT 50;", "refId": "A"}],
+      "title": "Recent Tracked Trades",
+      "type": "table"
+    }
+  ],
+  "refresh": "30s",
+  "schemaVersion": 39,
+  "style": "dark",
+  "tags": ["sparta", "wallets", "detail"],
+  "time": {"from": "now-7d", "to": "now"},
+  "timezone": "",
+  "title": "Wallet Detail",
+  "uid": "sparta-wallet-detail",
+  "version": 1,
+  "weekStart": ""
+}

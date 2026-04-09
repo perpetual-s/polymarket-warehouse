@@ -1,0 +1,15 @@
+{
+  "generated_at": "2026-04-09T03:21:52.023391+00:00",
+  "seed": 20260408,
+  "days": 60,
+  "market_count": 200,
+  "tracked_market_count": 24,
+  "detail_market_count": 8,
+  "account_count": 10,
+  "row_counts": {
+    "market_ticks_1m": 2181252,
+    "orderbook_topn_1m": 489840,
+    "account_trades": 9422,
+    "account_positions_1h": 96180
+  }
+}

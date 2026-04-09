@@ -1,0 +1,38 @@
+services:
+  timescaledb:
+    image: timescale/timescaledb:latest-pg16
+    container_name: sparta-timescaledb
+    environment:
+      POSTGRES_DB: sparta_bonus
+      POSTGRES_USER: bonus
+      POSTGRES_PASSWORD: bonus
+    ports:
+      - "5433:5432"
+    volumes:
+      - sparta_timescaledb_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bonus -d sparta_bonus"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  grafana:
+    image: grafana/grafana-oss:latest
+    container_name: sparta-grafana
+    depends_on:
+      timescaledb:
+        condition: service_healthy
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_USERS_DEFAULT_THEME: light
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./dashboards:/var/lib/grafana/dashboards:ro
+      - sparta_grafana_data:/var/lib/grafana
+
+volumes:
+  sparta_timescaledb_data:
+  sparta_grafana_data:

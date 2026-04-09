@@ -1,0 +1,92 @@
+[
+  {
+    "account_id": "acct_macro_comet",
+    "display_name": "Macro Comet",
+    "risk_style": "swing",
+    "home_region": "US",
+    "base_currency": "USDC",
+    "starting_cash_usd": 40000.0,
+    "notes": "Prefers politics and macro event markets"
+  },
+  {
+    "account_id": "acct_chart_falcon",
+    "display_name": "Chart Falcon",
+    "risk_style": "momentum",
+    "home_region": "US",
+    "base_currency": "USDC",
+    "starting_cash_usd": 32000.0,
+    "notes": "Chases fast movers with looser risk control"
+  },
+  {
+    "account_id": "acct_event_harbor",
+    "display_name": "Event Harbor",
+    "risk_style": "carry",
+    "home_region": "US",
+    "base_currency": "USDC",
+    "starting_cash_usd": 55000.0,
+    "notes": "Spreads risk over many small event positions"
+  },
+  {
+    "account_id": "acct_noise_vessel",
+    "display_name": "Noise Vessel",
+    "risk_style": "overtrader",
+    "home_region": "US",
+    "base_currency": "USDC",
+    "starting_cash_usd": 18000.0,
+    "notes": "Too active and pays for it in slippage"
+  },
+  {
+    "account_id": "acct_whale_lite",
+    "display_name": "Whale Lite",
+    "risk_style": "large-ticket",
+    "home_region": "US",
+    "base_currency": "USDC",
+    "starting_cash_usd": 95000.0,
+    "notes": "Concentrated positions in liquid markets"
+  },
+  {
+    "account_id": "acct_underdog",
+    "display_name": "Underdog",
+    "risk_style": "contrarian",
+    "home_region": "US",
+    "base_currency": "USDC",
+    "starting_cash_usd": 21000.0,
+    "notes": "Leans into compressed underdog odds"
+  },
+  {
+    "account_id": "acct_slate_arrow",
+    "display_name": "Slate Arrow",
+    "risk_style": "news-reactive",
+    "home_region": "US",
+    "base_currency": "USDC",
+    "starting_cash_usd": 27000.0,
+    "notes": "Trades event clusters around news bursts"
+  },
+  {
+    "account_id": "acct_delta_hollow",
+    "display_name": "Delta Hollow",
+    "risk_style": "slow-burn",
+    "home_region": "US",
+    "base_currency": "USDC",
+    "starting_cash_usd": 36000.0,
+    "notes": "Steadier book with lower turnover"
+  },
+  {
+    "account_id": "acct_kite_room",
+    "display_name": "Kite Room",
+    "risk_style": "speculative",
+    "home_region": "US",
+    "base_currency": "USDC",
+    "starting_cash_usd": 14000.0,
+    "notes": "Small aggressive account with visible drawdowns"
+  },
+  {
+    "account_id": "acct_bridge_nova",
+    "display_name": "Bridge Nova",
+    "risk_style": "balanced",
+    "home_region": "US",
+    "base_currency": "USDC",
+    "starting_cash_usd": 48000.0,
+    "notes": "Generalist account that smooths the aggregate portfolio"
+  }
+]

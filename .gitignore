@@ -1,0 +1,14 @@
+data/generated/*
+data/load/*.csv
+data/screenshots/*
+!data/generated/.gitkeep
+!data/generated/accounts.json
+!data/generated/generation_summary.json
+!data/load/.gitkeep
+!data/load/*.csv.gz
+!data/seed/.gitkeep
+!data/seed/markets.json
+!data/seed/public_state.json
+__pycache__/
+*.pyc
+data/scheduler.log

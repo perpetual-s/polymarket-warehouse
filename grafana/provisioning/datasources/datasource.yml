@@ -1,0 +1,21 @@
+apiVersion: 1
+
+datasources:
+  - name: Sparta TimescaleDB
+    uid: timescaledb
+    type: postgres
+    access: proxy
+    url: timescaledb:5432
+    user: bonus
+    secureJsonData:
+      password: bonus
+    jsonData:
+      database: sparta_bonus
+      sslmode: disable
+      postgresVersion: 1600
+      timescaledb: true
+      connMaxLifetime: 14400
+      maxIdleConns: 8
+      maxOpenConns: 16
+      autoCreateDatabase: false
+    isDefault: true

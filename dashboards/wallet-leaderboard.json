@@ -1,0 +1,360 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {"type": "grafana", "uid": "-- Grafana --"},
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [
+    {"title": "Wallet Detail", "url": "/d/sparta-wallet-detail/wallet-detail", "icon": "external link", "type": "link", "tooltip": "Drilldown into a specific wallet"},
+    {"title": "Market Flow", "url": "/d/sparta-market-flow/market-flow", "icon": "external link", "type": "link", "tooltip": "Per-market buy/sell analysis"},
+    {"title": "Collector Health", "url": "/d/sparta-collector-health/collector-health", "icon": "external link", "type": "link", "tooltip": "Pipeline status"}
+  ],
+  "panels": [
+    {
+      "datasource": {"type": "postgres", "uid": "timescaledb"},
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"},
+          "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}]}
+        },
+        "overrides": []
+      },
+      "gridPos": {"h": 4, "w": 6, "x": 0, "y": 0},
+      "id": 1,
+      "options": {
+        "colorMode": "value", "graphMode": "none", "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false},
+        "textMode": "auto"
+      },
+      "targets": [{
+        "format": "table", "rawQuery": true,
+        "rawSql": "SELECT COUNT(*)::double precision AS value FROM bonus.wallets;",
+        "refId": "A"
+      }],
+      "title": "Wallets Discovered",
+      "type": "stat"
+    },
+    {
+      "datasource": {"type": "postgres", "uid": "timescaledb"},
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"},
+          "thresholds": {"mode": "absolute", "steps": [{"color": "blue", "value": null}]}
+        },
+        "overrides": []
+      },
+      "gridPos": {"h": 4, "w": 6, "x": 6, "y": 0},
+      "id": 2,
+      "options": {
+        "colorMode": "value", "graphMode": "none", "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false},
+        "textMode": "auto"
+      },
+      "targets": [{
+        "format": "table", "rawQuery": true,
+        "rawSql": "SELECT COUNT(*)::double precision AS value FROM bonus.wallets WHERE is_tracked;",
+        "refId": "A"
+      }],
+      "title": "Tracked Wallets",
+      "type": "stat"
+    },
+    {
+      "datasource": {"type": "postgres", "uid": "timescaledb"},
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"},
+          "unit": "currencyUSD",
+          "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}]}
+        },
+        "overrides": []
+      },
+      "gridPos": {"h": 4, "w": 6, "x": 12, "y": 0},
+      "id": 3,
+      "options": {
+        "colorMode": "value", "graphMode": "none", "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false},
+        "textMode": "auto"
+      },
+      "targets": [{
+        "format": "table", "rawQuery": true,
+        "rawSql": "SELECT COALESCE(SUM(latest_portfolio_value_usd), 0)::double precision AS value FROM bonus.wallets WHERE is_tracked;",
+        "refId": "A"
+      }],
+      "title": "Tracked Portfolio (total)",
+      "type": "stat"
+    },
+    {
+      "datasource": {"type": "postgres", "uid": "timescaledb"},
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"},
+          "thresholds": {"mode": "absolute", "steps": [{"color": "purple", "value": null}]}
+        },
+        "overrides": []
+      },
+      "gridPos": {"h": 4, "w": 6, "x": 18, "y": 0},
+      "id": 4,
+      "options": {
+        "colorMode": "value", "graphMode": "none", "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false},
+        "textMode": "auto"
+      },
+      "targets": [{
+        "format": "table", "rawQuery": true,
+        "rawSql": "SELECT COUNT(DISTINCT market_condition_id)::double precision AS value FROM bonus.raw_market_holders_snapshots;",
+        "refId": "A"
+      }],
+      "title": "Markets Scanned",
+      "type": "stat"
+    },
+    {
+      "datasource": {"type": "postgres", "uid": "timescaledb"},
+      "fieldConfig": {
+        "defaults": {
+          "custom": {"align": "auto", "displayMode": "auto"},
+          "color": {"mode": "thresholds"},
+          "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}]}
+        },
+        "overrides": [
+          {
+            "matcher": {"id": "byName", "options": "tracked"},
+            "properties": [
+              {"id": "custom.displayMode", "value": "color-background"},
+              {"id": "mappings", "value": [
+                {"type": "value", "options": {"true": {"color": "green", "index": 0, "text": "YES"}, "false": {"color": "transparent", "index": 1, "text": ""}}}
+              ]}
+            ]
+          },
+          {
+            "matcher": {"id": "byName", "options": "wallet"},
+            "properties": [
+              {"id": "links", "value": [{"title": "Open wallet detail", "url": "/d/sparta-wallet-detail/wallet-detail?var-wallet=${__data.fields.address}&from=now-7d&to=now"}]}
+            ]
+          },
+          {
+            "matcher": {"id": "byName", "options": "pnl"},
+            "properties": [
+              {"id": "unit", "value": "currencyUSD"},
+              {"id": "decimals", "value": 0},
+              {"id": "thresholds", "value": {"mode": "absolute", "steps": [{"color": "red", "value": null}, {"color": "green", "value": 0}]}},
+              {"id": "custom.cellOptions", "value": {"type": "color-text"}}
+            ]
+          },
+          {
+            "matcher": {"id": "byName", "options": "portfolio"},
+            "properties": [{"id": "unit", "value": "currencyUSD"}, {"id": "decimals", "value": 0}]
+          },
+          {
+            "matcher": {"id": "byName", "options": "verified"},
+            "properties": [
+              {"id": "mappings", "value": [
+                {"type": "value", "options": {"true": {"text": "V", "color": "blue"}, "false": {"text": "", "color": "transparent"}}}
+              ]}
+            ]
+          }
+        ]
+      },
+      "gridPos": {"h": 14, "w": 24, "x": 0, "y": 4},
+      "id": 5,
+      "options": {"footer": {"show": false}, "showHeader": true},
+      "targets": [{
+        "format": "table", "rawQuery": true,
+        "rawSql": "SELECT\n  COALESCE(NULLIF(w.name, ''), NULLIF(w.user_name, ''), LEFT(w.address, 12) || '...') AS wallet,\n  w.latest_leaderboard_rank AS rank,\n  w.latest_leaderboard_pnl::double precision AS pnl,\n  w.latest_portfolio_value_usd::double precision AS portfolio,\n  w.discovered_via AS source,\n  w.is_tracked AS tracked,\n  w.verified_badge AS verified,\n  w.created_at_polymarket::date AS joined,\n  w.last_seen_at::timestamp(0) AS last_seen,\n  w.address\nFROM bonus.wallets w\nWHERE w.latest_leaderboard_pnl IS NOT NULL\n   OR w.is_tracked\n   OR w.latest_portfolio_value_usd > 0\nORDER BY\n  w.latest_leaderboard_pnl DESC NULLS LAST,\n  w.latest_portfolio_value_usd DESC NULLS LAST\nLIMIT 50;",
+        "refId": "A"
+      }],
+      "title": "Top Wallets",
+      "type": "table"
+    },
+    {
+      "datasource": {"type": "postgres", "uid": "timescaledb"},
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "palette-classic"}
+        },
+        "overrides": []
+      },
+      "gridPos": {"h": 9, "w": 8, "x": 0, "y": 18},
+      "id": 6,
+      "options": {
+        "legend": {"displayMode": "list", "placement": "right"},
+        "pieType": "donut",
+        "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": true},
+        "tooltip": {"mode": "single"}
+      },
+      "targets": [{
+        "format": "table", "rawQuery": true,
+        "rawSql": "SELECT discovered_via AS source, COUNT(*)::double precision AS wallets\nFROM bonus.wallets\nGROUP BY discovered_via\nORDER BY wallets DESC;",
+        "refId": "A"
+      }],
+      "title": "Wallet Discovery Sources",
+      "type": "piechart"
+    },
+    {
+      "datasource": {"type": "postgres", "uid": "timescaledb"},
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "palette-classic"},
+          "unit": "currencyUSD",
+          "custom": {
+            "drawStyle": "bars",
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "lineWidth": 1
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {"h": 9, "w": 16, "x": 8, "y": 18},
+      "id": 7,
+      "options": {
+        "legend": {"displayMode": "list", "placement": "bottom"},
+        "tooltip": {"mode": "single"}
+      },
+      "targets": [{
+        "format": "table", "rawQuery": true,
+        "rawSql": "WITH latest AS (\n  SELECT MAX(captured_at) AS ts FROM bonus.raw_market_holders_snapshots\n)\nSELECT\n  COALESCE(NULLIF(h.name, ''), LEFT(h.proxy_wallet, 10) || '...') AS whale,\n  SUM(h.amount)::double precision AS total_holdings\nFROM bonus.raw_market_holders_snapshots h, latest\nWHERE h.captured_at = latest.ts AND h.amount > 0\nGROUP BY h.proxy_wallet, h.name\nORDER BY total_holdings DESC\nLIMIT 15;",
+        "refId": "A"
+      }],
+      "title": "Top 15 Whales by Holdings",
+      "type": "barchart"
+    },
+    {
+      "datasource": {"type": "postgres", "uid": "timescaledb"},
+      "fieldConfig": {
+        "defaults": {
+          "custom": {"align": "auto", "displayMode": "auto"}
+        },
+        "overrides": [
+          {
+            "matcher": {"id": "byName", "options": "holdings"},
+            "properties": [{"id": "unit", "value": "currencyUSD"}, {"id": "decimals", "value": 0}]
+          }
+        ]
+      },
+      "gridPos": {"h": 10, "w": 24, "x": 0, "y": 27},
+      "id": 8,
+      "options": {"footer": {"show": false}, "showHeader": true},
+      "targets": [{
+        "format": "table", "rawQuery": true,
+        "rawSql": "WITH latest AS (\n  SELECT MAX(captured_at) AS ts FROM bonus.raw_market_holders_snapshots\n)\nSELECT\n  COALESCE(NULLIF(h.name, ''), LEFT(h.proxy_wallet, 12) || '...') AS whale,\n  m.question AS market,\n  h.amount::double precision AS holdings,\n  CASE h.outcome_index WHEN 0 THEN m.outcome_a WHEN 1 THEN m.outcome_b ELSE 'Outcome ' || h.outcome_index END AS outcome\nFROM bonus.raw_market_holders_snapshots h\nJOIN bonus.markets m ON m.market_id = h.market_condition_id\n, latest\nWHERE h.captured_at = latest.ts\n  AND h.amount > 10000\nORDER BY h.amount DESC\nLIMIT 50;",
+        "refId": "A"
+      }],
+      "title": "Whale Positions (>$10K)",
+      "type": "table",
+      "description": "Largest individual positions across all scanned markets."
+    },
+    {
+      "datasource": {"type": "postgres", "uid": "timescaledb"},
+      "fieldConfig": {
+        "defaults": {"custom": {"align": "auto", "displayMode": "auto"}},
+        "overrides": [
+          {"matcher": {"id": "byName", "options": "pnl"}, "properties": [
+            {"id": "unit", "value": "currencyUSD"}, {"id": "decimals", "value": 0},
+            {"id": "thresholds", "value": {"mode": "absolute", "steps": [{"color": "red", "value": null}, {"color": "green", "value": 0}]}},
+            {"id": "custom.cellOptions", "value": {"type": "color-text"}}
+          ]},
+          {"matcher": {"id": "byName", "options": "wins"}, "properties": [
+            {"id": "unit", "value": "currencyUSD"}, {"id": "decimals", "value": 0},
+            {"id": "custom.cellOptions", "value": {"type": "color-text"}},
+            {"id": "color", "value": {"mode": "fixed", "fixedColor": "green"}}
+          ]},
+          {"matcher": {"id": "byName", "options": "losses"}, "properties": [
+            {"id": "unit", "value": "currencyUSD"}, {"id": "decimals", "value": 0},
+            {"id": "custom.cellOptions", "value": {"type": "color-text"}},
+            {"id": "color", "value": {"mode": "fixed", "fixedColor": "red"}}
+          ]},
+          {"matcher": {"id": "byName", "options": "win_rate"}, "properties": [
+            {"id": "unit", "value": "percentunit"}, {"id": "decimals", "value": 1},
+            {"id": "thresholds", "value": {"mode": "absolute", "steps": [{"color": "red", "value": null}, {"color": "yellow", "value": 0.4}, {"color": "green", "value": 0.6}]}},
+            {"id": "custom.cellOptions", "value": {"type": "color-text"}}
+          ]},
+          {"matcher": {"id": "byName", "options": "portfolio"}, "properties": [{"id": "unit", "value": "currencyUSD"}, {"id": "decimals", "value": 0}]},
+          {"matcher": {"id": "byName", "options": "trader"}, "properties": [
+            {"id": "links", "value": [{"title": "Open wallet detail", "url": "/d/sparta-wallet-detail/wallet-detail?var-wallet=${__data.fields[trader_address]}&from=now-7d&to=now"}]}
+          ]}
+        ]
+      },
+      "gridPos": {"h": 12, "w": 24, "x": 0, "y": 37},
+      "id": 9,
+      "options": {"footer": {"show": false}, "showHeader": true},
+      "targets": [{
+        "format": "table", "rawQuery": true,
+        "rawSql": "WITH latest AS (SELECT MAX(captured_at) AS ts FROM bonus.raw_pma_trader_snapshots)\nSELECT\n  p.rank,\n  COALESCE(NULLIF(p.trader_name, ''), LEFT(p.trader_address, 12) || '...') AS trader,\n  p.overall_gain::double precision AS pnl,\n  p.win_amount::double precision AS wins,\n  p.loss_amount::double precision AS losses,\n  p.win_rate::double precision AS win_rate,\n  p.total_current_value::double precision AS portfolio,\n  p.total_positions AS positions,\n  p.active_positions AS active,\n  p.event_count AS markets,\n  p.trader_tags AS tags,\n  p.trader_address\nFROM bonus.raw_pma_trader_snapshots p, latest\nWHERE p.captured_at = latest.ts\nORDER BY p.rank\nLIMIT 100;",
+        "refId": "A"
+      }],
+      "title": "PMA Global Leaderboard (Top 100 by PnL)",
+      "type": "table",
+      "description": "Pre-computed trader analytics from PolymarketAnalytics. 2.59M traders indexed with PnL, win rate, positions, and classification tags."
+    },
+    {
+      "datasource": {"type": "postgres", "uid": "timescaledb"},
+      "fieldConfig": {
+        "defaults": {"color": {"mode": "palette-classic"}},
+        "overrides": []
+      },
+      "gridPos": {"h": 9, "w": 12, "x": 0, "y": 49},
+      "id": 10,
+      "options": {
+        "legend": {"displayMode": "list", "placement": "right"},
+        "pieType": "donut",
+        "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": true},
+        "tooltip": {"mode": "single"}
+      },
+      "targets": [{
+        "format": "table", "rawQuery": true,
+        "rawSql": "WITH latest AS (SELECT MAX(captured_at) AS ts FROM bonus.raw_pma_trader_snapshots),\ntag_counts AS (\n  SELECT unnest(string_to_array(trader_tags, '; ')) AS tag\n  FROM bonus.raw_pma_trader_snapshots, latest\n  WHERE captured_at = latest.ts AND trader_tags IS NOT NULL AND rank <= 1000\n)\nSELECT tag, COUNT(*)::double precision AS traders\nFROM tag_counts\nWHERE tag != ''\nGROUP BY tag\nORDER BY traders DESC\nLIMIT 15;",
+        "refId": "A"
+      }],
+      "title": "Top 1K Trader Classification Tags",
+      "type": "piechart"
+    },
+    {
+      "datasource": {"type": "postgres", "uid": "timescaledb"},
+      "fieldConfig": {
+        "defaults": {"color": {"mode": "palette-classic"}, "custom": {"drawStyle": "bars", "fillOpacity": 80}, "unit": "short"},
+        "overrides": []
+      },
+      "gridPos": {"h": 9, "w": 12, "x": 12, "y": 49},
+      "id": 11,
+      "options": {
+        "legend": {"displayMode": "list", "placement": "bottom"},
+        "tooltip": {"mode": "single"}
+      },
+      "targets": [{
+        "format": "table", "rawQuery": true,
+        "rawSql": "WITH latest AS (SELECT MAX(captured_at) AS ts FROM bonus.raw_pma_trader_snapshots)\nSELECT\n  CASE\n    WHEN overall_gain >= 1000000 THEN '1M+'\n    WHEN overall_gain >= 100000 THEN '100K-1M'\n    WHEN overall_gain >= 10000 THEN '10K-100K'\n    WHEN overall_gain >= 1000 THEN '1K-10K'\n    WHEN overall_gain >= 0 THEN '0-1K'\n    WHEN overall_gain >= -1000 THEN '-1K to 0'\n    WHEN overall_gain >= -10000 THEN '-10K to -1K'\n    ELSE 'Below -10K'\n  END AS pnl_bucket,\n  COUNT(*)::double precision AS traders\nFROM bonus.raw_pma_trader_snapshots, latest\nWHERE captured_at = latest.ts\nGROUP BY 1\nORDER BY MIN(overall_gain) DESC;",
+        "refId": "A"
+      }],
+      "title": "PnL Distribution (All Traders)",
+      "type": "barchart",
+      "description": "How many traders fall into each PnL bucket. Shows the full distribution from whales to liquidated accounts."
+    }
+  ],
+  "refresh": "30s",
+  "schemaVersion": 39,
+  "style": "dark",
+  "tags": ["sparta", "wallets", "leaderboard"],
+  "templating": {"list": []},
+  "time": {"from": "now-24h", "to": "now"},
+  "timezone": "",
+  "title": "Wallet Leaderboard",
+  "uid": "sparta-wallet-leaderboard",
+  "version": 1,
+  "weekStart": ""
+}
